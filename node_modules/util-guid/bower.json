@@ -1,0 +1,22 @@
+{
+  "name": "util-guid",
+  "description": "Generate GUIDs for Web or Node.js",
+  "main": "dist/util-guid.js",
+  "authors": [
+    "forsigner"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "guid",
+    "guid generator"
+  ],
+  "homepage": "https://github.com/forsigner/util-guid",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
