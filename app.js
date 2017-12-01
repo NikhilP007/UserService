@@ -9,7 +9,7 @@ var session = require('express-session');
 var amqp = require('amqplib');
 // const http = require('http').Agent; 
 const hostname = '127.0.0.1';
-const port = 3000;
+const port = 8080;
 env = process.env.NODE_ENV = process.env.NODE_ENV || 'development',
 envConfig = require('./env')[env];
 var mongodb = require('mongodb').MongoClient;
@@ -122,63 +122,68 @@ app.get("/",function(req,res){
 });
 
 
-amqp.connect('amqp://localhost').then(function(conn) {
-    process.once('SIGINT', function() { conn.close(); });
-    return conn.createChannel().then(function(ch) {
-      var ok = ch.assertExchange('users', 'fanout', {durable: true});
-      ok = ok.then(function() {
-        return ch.assertQueue('', {durable: true});
-      });
-      ok = ok.then(function(qok) {
-        return ch.bindQueue(qok.queue, 'users', '').then(function() {
-          return qok.queue;
-        });
-      });
-      ok = ok.then(function(queue) {
-        return ch.consume(queue, logMessage, {noAck: false});
-      });
-      return ok.then(function() {
-        console.log('Waiting for events...');
-      });
+// amqp.connect('amqp://localhost').then(function(conn) {
+//     process.once('SIGINT', function() { conn.close(); });
+//     return conn.createChannel().then(function(ch) {
+//       var ok = ch.assertExchange('users', 'fanout', {durable: true});
+//       ok = ok.then(function() {
+//         return ch.assertQueue('', {durable: true});
+//       });
+//       ok = ok.then(function(qok) {
+//         return ch.bindQueue(qok.queue, 'users', '').then(function() {
+//           return qok.queue;
+//         });
+//       });
+//       ok = ok.then(function(queue) {
+//         return ch.consume(queue, logMessage, {noAck: false});
+//       });
+//       return ok.then(function() {
+//         console.log('Waiting for events...');
+//       });
   
-      function logMessage(msg) {
-        console.log("received");
-        var user = JSON.parse(msg.content);
-        mongodbConnectionCallBack = function(err,userAppDb){
-          var query = {"_id" : user.userId };
-          var mongoDbcollection = userAppDb.collection('users');
-          findOneCallBack = function(err, existingUser) {
-            if(!existingUser){
-              var newUser = {
-                name: user.name,
-                email: user.email,
-                password: user.password,
-                _id: user.userId
-              }
-              userInsertCallBack = function(err,insertedUser){
-                if(err)
-                  console.log("error in creating user");
-                else{
-                  console.log("new user added");
-                  console.log(insertedUser);
-                }
-                ch.ack(msg);
-              }
-              mongoDbcollection.insert(newUser,userInsertCallBack);
-            }
-            else{
-              console.log("userId conflict");
-            }    
-          }
-          mongoDbcollection.findOne(query, findOneCallBack);
-        }
-        mongodb.connect(envConfig.db,mongodbConnectionCallBack);   
-      }
-    });
-  }).catch(console.warn);
+//       function logMessage(msg) {
+//         console.log("received");
+//         var user = JSON.parse(msg.content);
+//         mongodbConnectionCallBack = function(err,userAppDb){
+//           var query = {"_id" : user.userId };
+//           var mongoDbcollection = userAppDb.collection('users');
+//           findOneCallBack = function(err, existingUser) {
+//             if(!existingUser){
+//               var newUser = {
+//                 name: user.name,
+//                 email: user.email,
+//                 password: user.password,
+//                 _id: user.userId
+//               }
+//               userInsertCallBack = function(err,insertedUser){
+//                 if(err)
+//                   console.log("error in creating user");
+//                 else{
+//                   console.log("new user added");
+//                   console.log(insertedUser);
+//                 }
+//                 ch.ack(msg);
+//               }
+//               mongoDbcollection.insert(newUser,userInsertCallBack);
+//             }
+//             else{
+//               console.log("userId conflict");
+//             }    
+//           }
+//           mongoDbcollection.findOne(query, findOneCallBack);
+//         }
+//         mongodb.connect(envConfig.db,mongodbConnectionCallBack);   
+//       }
+//     });
+//   }).catch(console.warn);
 
-app.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
+app.listen(port, () => {
+  console.log(`Server running...`);
+  mongodbConnectionCallBack = function(err,db){
+    console.log("checkin connection");
+    console.log(err,db);
+    }
+  mongodb.connect(envConfig.db,mongodbConnectionCallBack);
 });
 
 

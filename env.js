@@ -5,9 +5,8 @@ rootPath = path.normalize(__dirname);
 module.exports = {
 development: {
     rootPath : rootPath,
-    db: 'mongodb://localhost/userApp',
-    port: process.env.PORT || 3000,
-    eventDb: 'mongodb://localhost/eventStore',
+    db: 'mongodb:///ec2-52-66-145-228.ap-south-1.compute.amazonaws.com/userApp',
+    port: process.env.PORT || 8080
 },
 production: {}
 };
